@@ -33,3 +33,5 @@
 
 # private
 ej-rpc-srv
+*.swp
+tags
