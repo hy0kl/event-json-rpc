@@ -55,12 +55,43 @@
 /* Libevent. */
 #include <event.h>
 
+/** c json lib */
+#include "cJSON.h"
+
 /* Port to listen on. */
 #define SERVER_PORT 5555
 
 /* Length of each buffer in the buffer queue.  Also becomes the amount
  * of data we try to read per call to read(2). */
 #define BUFLEN 20480
+
+/** 请求体 */
+typedef struct _request_t
+{
+    int     body_len;   /** 请求体的 body 长度 */
+
+    /* The buffer. */
+    u_char *buf;        /** 请求体的 json 文本 */
+
+    cJSON  *json;       /** 请求体 parse 后的 json 对象 */
+} request_t;
+
+/** 响应体 */
+typedef struct _response_t
+{
+    int     body_len;
+
+    /* The buffer. */
+    u_char *buf;
+
+    /* The length of buf. */
+    int     len;
+
+    /* The offset into buf to start writing from. */
+    int     offset;
+
+    cJSON  *json;   /** 响应体组装的 json 对象 */
+} response_t;
 
 /**
  * In event based programming we need to queue up data to be written
@@ -76,6 +107,9 @@ struct bufferq {
 
     /* The offset into buf to start writing from. */
     int offset;
+
+    request_t  request;
+    response_t response;
 
     /* For the linked list structure. */
     TAILQ_ENTRY(bufferq) entries;
@@ -285,7 +319,7 @@ on_accept(int fd, short ev, void *arg)
     TAILQ_INIT(&client->writeq);
 
     printf("Accepted connection from %s\n",
-               inet_ntoa(client_addr.sin_addr));
+        inet_ntoa(client_addr.sin_addr));
 }
 
 int
