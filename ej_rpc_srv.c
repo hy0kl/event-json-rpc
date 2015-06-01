@@ -58,8 +58,14 @@
 /** c json lib */
 #include "cJSON.h"
 
+/** handler */
+#include "handler.h"
+
 /* Port to listen on. */
 #define SERVER_PORT 5555
+
+/** rpc 协议头长度 */
+#define PROTOCOL_HEADER_LEN sizeof(int)
 
 /* Length of each buffer in the buffer queue.  Also becomes the amount
  * of data we try to read per call to read(2). */
@@ -98,16 +104,8 @@ typedef struct _response_t
  * until we are told by libevent that we can write.  This is a simple
  * queue of buffers to be written implemented by a TAILQ from queue.h.
  */
-struct bufferq {
-    /* The buffer. */
-    u_char *buf;
-
-    /* The length of buf. */
-    int len;
-
-    /* The offset into buf to start writing from. */
-    int offset;
-
+struct bufferq
+{
     request_t  request;
     response_t response;
 
@@ -154,7 +152,7 @@ setnonblock(int fd)
 }
 
 void
-on_handle(struct client *client)
+on_handler(struct client *client)
 {
     return;
 }
@@ -169,6 +167,7 @@ on_read(int fd, short ev, void *arg)
     struct client *client = (struct client *)arg;
     struct bufferq *bufferq;
     u_char *buf;
+    int body_len;
     int len;
 
     /* Because we are event based and need to be told when we can
@@ -178,7 +177,19 @@ on_read(int fd, short ev, void *arg)
     if (buf == NULL)
         err(1, "malloc failed");
 
-    len = read(fd, buf, BUFLEN);
+    /** 读协议头 */
+    len = read(fd, &body_len, PROTOCOL_HEADER_LEN);
+    if (PROTOCOL_HEADER_LEN != len || body_len > BUFLEN) {
+        printf("Protocol header has something wrong.\n");
+        close(fd);
+
+        event_del(&client->ev_read);
+        free(client);
+
+        return;
+    }
+
+    len = read(fd, buf, body_len);
     if (len == 0) {
         /* Client disconnected, remove the read event and the
          * free the client structure. */
@@ -207,11 +218,11 @@ on_read(int fd, short ev, void *arg)
      * when we can write by libevent.  Put the buffer on the
      * client's write queue and schedule a write event. */
     bufferq = calloc(1, sizeof(*bufferq));
-    if (bufferq == NULL)
+    if (bufferq == NULL) {
         err(1, "malloc faild");
-    bufferq->buf = buf;
-    bufferq->len = len;
-    bufferq->offset = 0;
+    }
+
+    bufferq->request.buf = buf;
     TAILQ_INSERT_TAIL(&client->writeq, bufferq, entries);
 
     /* Since we now have data that needs to be written back to the
