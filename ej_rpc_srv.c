@@ -177,7 +177,7 @@ on_read(int fd, short ev, void *arg)
 {
     struct client *client = (struct client *)arg;
     struct bufferq *bufferq;
-    char *req_buf, *res_buf;
+    char *req_buf;
     int body_len = 0;
     int len = 0;
 
@@ -189,11 +189,6 @@ on_read(int fd, short ev, void *arg)
     req_buf = malloc(BUFLEN);
     if (req_buf == NULL) {
         err(1, "malloc failed for request buffer.");
-    }
-
-    res_buf = malloc(BUFLEN);
-    if (NULL == res_buf) {
-        err(2, "malloc failed for response buffer.");
     }
 
     /** 读协议头 */
@@ -238,7 +233,7 @@ on_read(int fd, short ev, void *arg)
     bufferq->request.buf  = req_buf;
     bufferq->request.json = cJSON_Parse(req_buf);
 
-    bufferq->response.buf       = res_buf;
+    bufferq->response.buf       = NULL;
     bufferq->response.body_len  = 0;
     bufferq->response.offset    = 0;
     bufferq->response.json      = cJSON_CreateObject();
@@ -259,7 +254,6 @@ READ_EXCEPTION:
     free(client);
 
     free(req_buf);
-    free(res_buf);
 
     return;
 }
