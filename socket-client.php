@@ -51,13 +51,14 @@ $input = array(
 );
 $input_json = json_encode($input);
 $body_len   = strlen($input_json);
-$req = pack('iA', $body_len, $input_json);
+$req = pack('i', $body_len) . $input_json;
+echo '@' . strlen($req) . '@' . PHP_EOL;
 
-if (! socket_write($socket, $req, strlen($req))) {
+if (! socket_write($socket, $req, 4 + $body_len)) {
     $err = socket_last_error($socket);
     echo "socket_write() failed: reason: " . socket_strerror($err) . PHP_EOL;
 } else {
-    echo "发送到服务器信息成功！[req: {$input_json}]" . PHP_EOL;
+    echo "发送到服务器信息成功！[req: {$input_json}] [req len: {$body_len}]" . PHP_EOL;
 }
 
 echo '---------------' . PHP_EOL;

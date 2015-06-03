@@ -70,7 +70,7 @@
 #define _DEBUG_ 1
 
 #if (_DEBUG_) /** { */
-#define logprintf(format, arg...) fprintf(stderr, "[NOTICE]%s:%d:%s "format"\n", __FILE__, __LINE__, __func__, ##arg)
+#define logprintf(format, arg...) fprintf(stderr, "[DEBUG]%s:%d:%s "format"\n", __FILE__, __LINE__, __func__, ##arg)
 #else /** } {*/
 #define logprintf(format, arg...) {}
 #endif /** } */
@@ -158,8 +158,13 @@ setnonblock(int fd)
 }
 
 void
-on_handler(struct client *client)
+on_handler(struct bufferq *bufferq)
 {
+    const char *strings[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+    bufferq->response.json = cJSON_CreateStringArray(strings, 7);
+    bufferq->response.buf  = cJSON_PrintUnformatted(bufferq->response.json);
+    bufferq->response.body_len = strlen(bufferq->response.buf);
+
     return;
 }
 
@@ -173,8 +178,10 @@ on_read(int fd, short ev, void *arg)
     struct client *client = (struct client *)arg;
     struct bufferq *bufferq;
     char *req_buf, *res_buf;
-    int body_len;
-    int len;
+    int body_len = 0;
+    int len = 0;
+
+    logprintf("fd: %d", fd);
 
     /* Because we are event based and need to be told when we can
      * write, we have to malloc the read buffer and put it on the
@@ -192,7 +199,8 @@ on_read(int fd, short ev, void *arg)
     /** 读协议头 */
     len = read(fd, &body_len, PROTOCOL_HEADER_LEN);
     if (PROTOCOL_HEADER_LEN != len || body_len > BUFLEN) {
-        printf("Protocol header has something wrong.\n");
+        fprintf(stderr, "Protocol header has something wrong. read len: %d, body_len: %d\n", len, body_len);
+        logprintf("%d Protocol header has something wrong. read len: %d, body_len: %d\n", __LINE__, len, body_len);
 
         goto READ_EXCEPTION;
     }
@@ -235,6 +243,8 @@ on_read(int fd, short ev, void *arg)
     bufferq->response.offset    = 0;
     bufferq->response.json      = cJSON_CreateObject();
 
+    on_handler(bufferq);
+
     TAILQ_INSERT_TAIL(&client->writeq, bufferq, entries);
 
     /* Since we now have data that needs to be written back to the
@@ -272,12 +282,17 @@ on_write(int fd, short ev, void *arg)
     if (bufferq == NULL)
         return;
 
+    /** 写头协议 */
+    if (0 == bufferq->response.offset) {
+        write(fd, &(bufferq->response.body_len), PROTOCOL_HEADER_LEN);
+    }
+
     /* Write the buffer.  A portion of the buffer may have been
      * written in a previous write, so only write the remaining
      * bytes. */
-    len = bufferq->len - bufferq->offset;
-    len = write(fd, bufferq->buf + bufferq->offset,
-                    bufferq->len - bufferq->offset);
+    len = bufferq->response.body_len - bufferq->response.offset;
+    len = write(fd, bufferq->response.buf + bufferq->response.offset,
+                    bufferq->response.body_len - bufferq->response.offset);
     if (len == -1) {
         if (errno == EINTR || errno == EAGAIN) {
             /* The write was interrupted by a signal or we
@@ -291,10 +306,10 @@ on_write(int fd, short ev, void *arg)
             err(1, "write");
         }
     }
-    else if ((bufferq->offset + len) < bufferq->len) {
+    else if ((bufferq->response.offset + len) < bufferq->response.body_len) {
         /* Not all the data was written, update the offset and
          * reschedule the write event. */
-        bufferq->offset += len;
+        bufferq->response.offset += len;
         event_add(&client->ev_write, NULL);
         return;
     }
@@ -302,7 +317,17 @@ on_write(int fd, short ev, void *arg)
     /* The data was completely written, remove the buffer from the
      * write queue. */
     TAILQ_REMOVE(&client->writeq, bufferq, entries);
-    free(bufferq->buf);
+
+    free(bufferq->request.buf);
+    free(bufferq->response.buf);
+
+    if (NULL != bufferq->request.json) {
+        cJSON_Delete(bufferq->request.json);
+    }
+    if (NULL != bufferq->response.json) {
+        cJSON_Delete(bufferq->response.json);
+    }
+
     free(bufferq);
 }
 
