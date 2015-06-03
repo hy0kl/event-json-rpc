@@ -85,7 +85,7 @@ typedef struct _request_t
     int     body_len;   /** 请求体的 body 长度 */
 
     /* The buffer. */
-    u_char *buf;        /** 请求体的 json 文本 */
+    char *buf;        /** 请求体的 json 文本 */
 
     cJSON  *json;       /** 请求体 parse 后的 json 对象 */
 } request_t;
@@ -93,13 +93,11 @@ typedef struct _request_t
 /** 响应体 */
 typedef struct _response_t
 {
+    /** 响应体的长度 */
     int     body_len;
 
     /* The buffer. */
-    u_char *buf;
-
-    /* The length of buf. */
-    int     len;
+    char *buf;
 
     /* The offset into buf to start writing from. */
     int     offset;
@@ -174,7 +172,7 @@ on_read(int fd, short ev, void *arg)
 {
     struct client *client = (struct client *)arg;
     struct bufferq *bufferq;
-    u_char *req_buf, *res_buf;
+    char *req_buf, *res_buf;
     int body_len;
     int len;
 
@@ -230,11 +228,12 @@ on_read(int fd, short ev, void *arg)
     }
 
     bufferq->request.buf  = req_buf;
+    bufferq->request.json = cJSON_Parse(req_buf);
 
-    bufferq->response.buf = res_buf;
-    bufferq->response.body_len = 0;
-    bufferq->response.len      = 0;
-    bufferq->response.offset   = 0;
+    bufferq->response.buf       = res_buf;
+    bufferq->response.body_len  = 0;
+    bufferq->response.offset    = 0;
+    bufferq->response.json      = cJSON_CreateObject();
 
     TAILQ_INSERT_TAIL(&client->writeq, bufferq, entries);
 
