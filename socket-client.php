@@ -47,6 +47,7 @@ $input = array(
         'test' => 'abc',
         'mt_rand' => mt_rand(),
         'time'    => time(),
+        'name'    => 'tester',
     ),
 );
 $input_json = json_encode($input);
