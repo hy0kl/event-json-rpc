@@ -67,6 +67,14 @@
 /** rpc 协议头长度 */
 #define PROTOCOL_HEADER_LEN sizeof(int)
 
+#define _DEBUG_ 1
+
+#if (_DEBUG_) /** { */
+#define logprintf(format, arg...) fprintf(stderr, "[NOTICE]%s:%d:%s "format"\n", __FILE__, __LINE__, __func__, ##arg)
+#else /** } {*/
+#define logprintf(format, arg...) {}
+#endif /** } */
+
 /* Length of each buffer in the buffer queue.  Also becomes the amount
  * of data we try to read per call to read(2). */
 #define BUFLEN 20480
@@ -166,68 +174,85 @@ on_read(int fd, short ev, void *arg)
 {
     struct client *client = (struct client *)arg;
     struct bufferq *bufferq;
-    u_char *buf;
+    u_char *req_buf, *res_buf;
     int body_len;
     int len;
 
     /* Because we are event based and need to be told when we can
      * write, we have to malloc the read buffer and put it on the
      * clients write queue. */
-    buf = malloc(BUFLEN);
-    if (buf == NULL)
-        err(1, "malloc failed");
+    req_buf = malloc(BUFLEN);
+    if (req_buf == NULL) {
+        err(1, "malloc failed for request buffer.");
+    }
+
+    res_buf = malloc(BUFLEN);
+    if (NULL == res_buf) {
+        err(2, "malloc failed for response buffer.");
+    }
 
     /** 读协议头 */
     len = read(fd, &body_len, PROTOCOL_HEADER_LEN);
     if (PROTOCOL_HEADER_LEN != len || body_len > BUFLEN) {
         printf("Protocol header has something wrong.\n");
-        close(fd);
 
-        event_del(&client->ev_read);
-        free(client);
-
-        return;
+        goto READ_EXCEPTION;
     }
 
-    len = read(fd, buf, body_len);
+    logprintf("request.body_len: %d", body_len);
+
+    len = read(fd, req_buf, body_len);
     if (len == 0) {
         /* Client disconnected, remove the read event and the
          * free the client structure. */
         printf("Client disconnected.\n");
-        close(fd);
 
-        event_del(&client->ev_read);
-        free(client);
-
-        return;
+        goto READ_EXCEPTION;
     }
     else if (len < 0) {
         /* Some other error occurred, close the socket, remove
          * the event and free the client structure. */
         printf("Socket failure, disconnecting client: %s",
             strerror(errno));
-        close(fd);
 
-        event_del(&client->ev_read);
-        free(client);
-
-        return;
+        goto READ_EXCEPTION;
     }
+
+    req_buf[body_len] = '\0';   /** 手工将请求的字符串结束 */
+    logprintf("request-json: %s", req_buf);
 
     /* We can't just write the buffer back as we need to be told
      * when we can write by libevent.  Put the buffer on the
      * client's write queue and schedule a write event. */
     bufferq = calloc(1, sizeof(*bufferq));
     if (bufferq == NULL) {
-        err(1, "malloc faild");
+        err(1, "malloc faild for bufferq.");
     }
 
-    bufferq->request.buf = buf;
+    bufferq->request.buf  = req_buf;
+
+    bufferq->response.buf = res_buf;
+    bufferq->response.body_len = 0;
+    bufferq->response.len      = 0;
+    bufferq->response.offset   = 0;
+
     TAILQ_INSERT_TAIL(&client->writeq, bufferq, entries);
 
     /* Since we now have data that needs to be written back to the
      * client, add a write event. */
     event_add(&client->ev_write, NULL);
+    return;
+
+READ_EXCEPTION:
+    close(fd);
+
+    event_del(&client->ev_read);
+    free(client);
+
+    free(req_buf);
+    free(res_buf);
+
+    return;
 }
 
 /**
