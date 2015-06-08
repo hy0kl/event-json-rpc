@@ -120,6 +120,7 @@ on_read(int fd, short ev, void *arg)
         err(1, "malloc faild for bufferq.");
     }
 
+    /** TODO 解析和创建 json 数据时需要容错 */
     bufferq->request.buf  = req_buf;
     bufferq->request.json = cJSON_Parse(req_buf);
 
