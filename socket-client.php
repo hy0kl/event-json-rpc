@@ -41,8 +41,13 @@ if (! $result) {
     echo "连接OK\n";
 }
 
+$cmd = 1221;
+if ($argc > 1) {
+    $cmd = $argv[1] + 0;
+}
+
 $input = array(
-    'cmd'  => 1221,
+    'cmd'  => $cmd,
     'data' => array(
         'test' => 'abc',
         'mt_rand' => mt_rand(),
