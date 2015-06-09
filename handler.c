@@ -26,12 +26,11 @@ static void
 rpc_cmd_undefined(struct bufferq *bufferq)
 {
     cJSON *json = bufferq->response.json;
+    cJSON *data = cJSON_CreateObject();
 
     cJSON_AddItemToObject(json, RES_CODE, cJSON_CreateNumber(E_CMD_UNDEFINED));
     cJSON_AddItemToObject(json, RES_MSG, cJSON_CreateString(get_error_message(E_CMD_UNDEFINED)));
-
-    bufferq->response.buf      = cJSON_PrintUnformatted(json);
-    bufferq->response.body_len = strlen(bufferq->response.buf);
+    cJSON_AddItemToObject(json, RES_DATA, data);
 
     return;
 }
@@ -50,6 +49,9 @@ rpc_handler(struct bufferq *bufferq)
         default:
             rpc_cmd_undefined(bufferq);
     }
+
+    bufferq->response.buf      = cJSON_PrintUnformatted(bufferq->response.json);
+    bufferq->response.body_len = strlen(bufferq->response.buf);
 
     return;
 }
