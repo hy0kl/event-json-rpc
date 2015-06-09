@@ -1,6 +1,6 @@
 # TODO LIST
 
-- php client
+- memory pool
 - daemon
 - log
 - config args(maybe use lua)
