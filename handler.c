@@ -66,19 +66,25 @@ rpc_cmd_test(struct bufferq *bufferq)
     char *wday[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     time_t timep;
     struct tm *tp;
+    struct timeval tv;
 
     time(&timep);           /* 获取 time_t 类型当前时间 */
     //tp = gmtime(&timep);    /* 转换为 struct tm 结构的UTC时间 */
+    /** 谷歌后得知: localtime() 返回的是静态指针,不需要 free() */
     tp = localtime(&timep);        /* 转换为 struct tm 结构的当地时间 */
+    gettimeofday(&tv, NULL);
 
     snprintf(test, 1024, "Just for test. [timestamp: %ld] [%d/%02d/%02d %s %02d:%02d:%02d]",
-        time(NULL),
+        GETSTIME(tv),
         1900 + tp->tm_year, 1 + tp->tm_mon, tp->tm_mday,
         wday[tp->tm_wday],
         tp->tm_hour, tp->tm_min, tp->tm_sec);
 
     cJSON_AddItemToObject(json, RES_DATA, data);
-    cJSON_AddItemToObject(data, "test", cJSON_CreateString(test));
+    cJSON_AddItemToObject(data, "test",        cJSON_CreateString(test));
+    cJSON_AddItemToObject(data, "timestamp",   cJSON_CreateNumber(GETSTIME(tv)));
+    cJSON_AddItemToObject(data, "millisecond", cJSON_CreateNumber(GETMTIME(tv)));
+    cJSON_AddItemToObject(data, "microsecond", cJSON_CreateNumber(GETUTIME(tv)));
 
     return;
 }
