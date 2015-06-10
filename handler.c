@@ -62,10 +62,23 @@ rpc_cmd_test(struct bufferq *bufferq)
 
     char test[1024];
     test[0] = '\0';
-    snprintf(test, 1024, "just for test. [time: %ld]", time(NULL));
+
+    char *wday[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    time_t timep;
+    struct tm *tp;
+
+    time(&timep);           /* 获取 time_t 类型当前时间 */
+    //tp = gmtime(&timep);    /* 转换为 struct tm 结构的UTC时间 */
+    tp = localtime(&timep);        /* 转换为 struct tm 结构的当地时间 */
+
+    snprintf(test, 1024, "Just for test. [timestamp: %ld] [%d/%02d/%02d %s %02d:%02d:%02d]",
+        time(NULL),
+        1900 + tp->tm_year, 1 + tp->tm_mon, tp->tm_mday,
+        wday[tp->tm_wday],
+        tp->tm_hour, tp->tm_min, tp->tm_sec);
 
     cJSON_AddItemToObject(json, RES_DATA, data);
-    cJSON_AddItemToObject(data, "test_result", cJSON_CreateString(test));
+    cJSON_AddItemToObject(data, "test", cJSON_CreateString(test));
 
     return;
 }
