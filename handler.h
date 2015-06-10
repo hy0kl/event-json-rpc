@@ -8,7 +8,7 @@
 typedef enum _cmd_e
 {
     CMD_ECHO = 100101,
-    CMD_TEST,
+    CMD_TEST = 100102,
 } cmd_e;
 
 typedef enum _error_code_e
