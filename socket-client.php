@@ -51,8 +51,9 @@ $input = array(
     'data' => array(
         'test' => 'abc',
         'mt_rand' => mt_rand(),
-        'time'    => time(),
         'name'    => 'tester',
+        'timestamp'   => time(),
+        'microsecond' => microtime(true),
     ),
 );
 $input_json = json_encode($input);
