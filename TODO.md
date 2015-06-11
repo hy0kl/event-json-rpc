@@ -1,9 +1,9 @@
 # TODO LIST
 
+- log
+- mysql pool
+- config args(maybe use lua)
 - memory pool
 - daemon
-- log
-- config args(maybe use lua)
 - gtest
-- mysql pool
 - redis

@@ -6,8 +6,9 @@
 
 ```
 libevent
-json
+cJSON
 zlog
+libzdb
 ```
 
 ## 以此为基础
@@ -18,6 +19,9 @@ https://github.com/kbranigan/cJSON
 
 ## c loger
 https://github.com/HardySimpson/zlog
+
+## 数据库连接池
+https://github.com/mverbert/libzdb
 
 # 命令号和错误码
 
