@@ -21,6 +21,7 @@ https://github.com/kbranigan/cJSON
 https://github.com/HardySimpson/zlog
 
 ## 数据库连接池
+http://re2c.org/
 https://github.com/mverbert/libzdb
 
 # 命令号和错误码

@@ -28,6 +28,7 @@
  */
 
 #include "server.h"
+#include "confile.h"
 
 /** handler */
 #include "handler.h"
