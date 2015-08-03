@@ -7,6 +7,7 @@
 
 LIBDIR = \
 		-levent \
+		-lzlog \
 		-lm
 
 GCC = gcc
