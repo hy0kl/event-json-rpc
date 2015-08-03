@@ -15,7 +15,7 @@ GCCFLAGS = -g -Wall -Winline -pipe
 
 TARGET = ej-rpc-srv
 
-OBJS  = confile.o cJSON.o handler.o ej_rpc_srv.o
+OBJS  = confile.o cJSON.o handler.o util.o ej_rpc_srv.o
 
 all : $(TARGET)
 	@echo "Start compile all"

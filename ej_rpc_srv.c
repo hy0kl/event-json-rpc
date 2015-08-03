@@ -96,14 +96,14 @@ on_read(int fd, short ev, void *arg)
     if (len == 0) {
         /* Client disconnected, remove the read event and the
          * free the client structure. */
-        printf("Client disconnected.\n");
+        zlog_info(zc, "Client disconnected.\n");
 
         goto READ_EXCEPTION;
     }
     else if (len < 0) {
         /* Some other error occurred, close the socket, remove
          * the event and free the client structure. */
-        printf("Socket failure, disconnecting client: %s",
+        zlog_error(zc, "Socket failure, disconnecting client: %s",
             strerror(errno));
 
         goto READ_EXCEPTION;
