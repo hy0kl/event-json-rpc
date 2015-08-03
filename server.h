@@ -36,6 +36,9 @@
 /** c json lib */
 #include "cJSON.h"
 
+/** zllog*/
+#include <zlog.h>
+
 /* Easy sensible linked lists. */
 #include "queue.h"
 
@@ -119,5 +122,10 @@ struct client {
      * is ready for writing. */
     TAILQ_HEAD(, bufferq) writeq;
 };
+
+/**
+ * global variables
+ * */
+extern zlog_category_t *zc; /** 全局日志句柄 */
 
 #endif
