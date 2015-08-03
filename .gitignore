@@ -36,3 +36,4 @@ ej-rpc-srv
 *.swp
 tags
 log/*.log
+conf/zlog.conf
