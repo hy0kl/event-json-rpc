@@ -72,7 +72,7 @@ on_read(int fd, short ev, void *arg)
     int body_len = 0;
     int len = 0;
 
-    logprintf("fd: %d", fd);
+    zlog_debug(zc, "fd: %d", fd);
 
     /* Because we are event based and need to be told when we can
      * write, we have to malloc the read buffer and put it on the
@@ -85,13 +85,12 @@ on_read(int fd, short ev, void *arg)
     /** 读协议头 */
     len = read(fd, &body_len, PROTOCOL_HEADER_LEN);
     if (PROTOCOL_HEADER_LEN != len || body_len > BUFLEN) {
-        fprintf(stderr, "Protocol header has something wrong. read len: %d, body_len: %d\n", len, body_len);
-        logprintf("%d Protocol header has something wrong. read len: %d, body_len: %d\n", __LINE__, len, body_len);
+        zlog_warn(zc, "Protocol header has something wrong. read len: %d, body_len: %d\n", len, body_len);
 
         goto READ_EXCEPTION;
     }
 
-    logprintf("request.body_len: %d", body_len);
+    zlog_debug(zc, "request.body_len: %d", body_len);
 
     len = read(fd, req_buf, body_len);
     if (len == 0) {
@@ -111,7 +110,7 @@ on_read(int fd, short ev, void *arg)
     }
 
     req_buf[body_len] = '\0';   /** 手工将请求的字符串结束 */
-    logprintf("request-json: %s", req_buf);
+    zlog_debug(zc, "request-json: %s", req_buf);
 
     /* We can't just write the buffer back as we need to be told
      * when we can write by libevent.  Put the buffer on the
@@ -264,7 +263,7 @@ on_accept(int fd, short ev, void *arg)
     /* Initialize the clients write queue. */
     TAILQ_INIT(&client->writeq);
 
-    printf("Accepted connection from %s\n",
+    zlog_debug(zc, "Accepted connection from %s\n",
         inet_ntoa(client_addr.sin_addr));
 }
 

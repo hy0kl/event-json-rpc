@@ -25,9 +25,9 @@ normal = "%d(%F %T) %-5V [%p:%F:%L] %m%n"
 #default.*               >stdout; simple
 #*.*                     "log/%c.%d(%F).log", 500MB * 12; simple
 #main_cat.*              "log/%V.%d(%F).log", 500MB * 12; normal
-main_cat.FATAL          "log/%c.%d(%F).log", 500MB * 12; normal
-main_cat.ERROR          "log/%c.%d(%F).log", 500MB * 12; normal
-main_cat.WARN           "log/%c.%d(%F).log", 500MB * 12; normal
+main_cat.FATAL          "log/%V.%d(%F).log", 500MB * 12; normal
+main_cat.ERROR          "log/%V.%d(%F).log", 500MB * 12; normal
+main_cat.WARN           "log/%V.%d(%F).log", 500MB * 12; normal
 main_cat.NOTICE         "log/%V.%d(%F).log", 500MB * 12; simple
 main_cat.INFO           "log/%V.%d(%F).log", 500MB * 12; simple
 main_cat.DEBUG          "log/%V.%d(%F).log"; normal
