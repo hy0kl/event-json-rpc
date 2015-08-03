@@ -10,21 +10,27 @@ rotate lock file = /tmp/zlog.lock
 default format = "%d(%F %T) %-5V [%p:%F:%L] %m%n"
 # 只允许当前用户读写, "file perms" & ~umask
 file perms = 600
- 
+
 [levels]
 # 如果不设默认为 LOG_DEBUG
 TRACE = 10
 CRIT = 130, LOG_CRIT
 
 [formats]
-simple = "%d(%F %T) %-5V [%p:%F:%L] %m%n"
-normal = "%d %m%n"
+simple = "%d %m%n"
+normal = "%d(%F %T) %-5V [%p:%F:%L] %m%n"
 
 [rules]
 # zlog有6个默认的级别："DEBUG", "INFO", "NOTICE", "WARN", "ERROR"和"FATAL"
-default.*               >stdout; simple
+#default.*               >stdout; simple
 #*.*                     "log/%c.%d(%F).log", 500MB * 12; simple
-main_cat.*              "log/%V.%d(%F).log", 500MB * 12; simple
+#main_cat.*              "log/%V.%d(%F).log", 500MB * 12; normal
+main_cat.FATAL          "log/%c.%d(%F).log", 500MB * 12; normal
+main_cat.ERROR          "log/%c.%d(%F).log", 500MB * 12; normal
+main_cat.WARN           "log/%c.%d(%F).log", 500MB * 12; normal
+main_cat.NOTICE         "log/%V.%d(%F).log", 500MB * 12; simple
+main_cat.INFO           "log/%V.%d(%F).log", 500MB * 12; simple
+main_cat.DEBUG          "log/%V.%d(%F).log"; normal
 # 输出到有进程号区分的日志，每天，每1GB转档一次，保持5个日志文件。
 #*.*     "log/all.%p.%d(%F).log", 1GB * 5
 #main_.DEBUG     "log/debug.log"
