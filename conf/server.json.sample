@@ -2,6 +2,8 @@
     "daemon": true,
     "port": 5555,
 
+    "zlog_conf": "conf/zlog.conf",
+
     "mysql": {
         "master": {
             "host": "127.0.0.1",

@@ -60,6 +60,17 @@
 #define logprintf(format, arg...) {}
 #endif /** } */
 
+/**
+ _ __ ___   __ _  ___ _ __ ___
+| '_ ` _ \ / _` |/ __| '__/ _ \
+| | | | | | (_| | (__| | | (_) |
+|_| |_| |_|\__,_|\___|_|  \___/
+*/
+/** 配置项目缓冲区长度 */
+#define CONF_BUF_LEN    128
+/** 文件路径缓冲区长度 */
+#define PATH_BUF_LEN    1024
+
 /* Length of each buffer in the buffer queue.  Also becomes the amount
  * of data we try to read per call to read(2). */
 #define BUFLEN 20480
@@ -123,9 +134,33 @@ struct client {
     TAILQ_HEAD(, bufferq) writeq;
 };
 
+typedef unsigned int u_int;
+
+typedef struct _mysql_config_t
+{
+    char   host[CONF_BUF_LEN];
+    u_int  port;
+    char   dbname[CONF_BUF_LEN];
+    char   username[CONF_BUF_LEN];
+    char   password[CONF_BUF_LEN];
+} mysql_config_t;
+
+/** 全局服务配置结构体 */
+typedef struct _server_config_t
+{
+    u_int daemon;   /** 是否以守护进程方式工作 */
+    u_int port;     /** 监听的端口 */
+
+    char  zlog_conf[PATH_BUF_LEN];
+
+    mysql_config_t mysql_master;
+    mysql_config_t mysql_slaves;
+} server_config_t;
+
 /**
  * global variables
  * */
+extern server_config_t g_srv_conf;
 extern zlog_category_t *zc; /** 全局日志句柄 */
 
 #endif

@@ -28,7 +28,6 @@
  */
 
 #include "server.h"
-#include "confile.h"
 
 /** handler */
 #include "handler.h"
@@ -270,13 +269,16 @@ on_accept(int fd, short ev, void *arg)
 /**
  * global variables
  * */
+server_config_t g_srv_conf;
 zlog_category_t *zc;
 
 int
 main(int argc, char **argv)
 {
-    int rc;
+    /** 解析主配置文件 */
 
+    /** 初始化日志 */
+    int rc;
     rc = zlog_init("conf/zlog.conf");
     if (rc) {
         fprintf(stderr, "init failed\n");
@@ -291,6 +293,7 @@ main(int argc, char **argv)
     }
     zlog_info(zc, "程序初始化");
 
+    /** 启动服务 */
     int listen_fd;
     struct sockaddr_in listen_addr;
     int reuseaddr_on = 1;
