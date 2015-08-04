@@ -37,3 +37,4 @@ ej-rpc-srv
 tags
 log/*.log
 conf/zlog.conf
+conf/server.json

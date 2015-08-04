@@ -1,0 +1,22 @@
+{
+    "daemon": true,
+    "port": 5555,
+
+    "mysql": {
+        "master": {
+            "host": "127.0.0.1",
+            "port": 3306,
+            "dbname": "test",
+            "username": "dev",
+            "password": "work@dev"
+        },
+
+        "slaves": {
+            "host": "127.0.0.1",
+            "port": 3306,
+            "dbname": "test",
+            "username": "dev",
+            "password": "work@dev"
+        }
+    }
+}
