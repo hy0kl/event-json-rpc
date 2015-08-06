@@ -39,6 +39,7 @@ int
 main(int argc, char *argv[])
 {
     /** 解析主配置文件 */
+    parse_server_config();
 
     /** 初始化日志 */
     init_global_zlog();

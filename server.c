@@ -9,19 +9,89 @@
 #include "handler.h"
 
 void
+parse_server_config()
+{
+    FILE *fp = fopen("conf/server.json", "r");
+    if (NULL == fp)
+    {
+        fprintf(stderr, "无法打开主配置文件: conf/server.json\n");
+        exit(CAN_NOT_OPEN_SERVER_JSON);
+    }
+
+    fseek(fp, 0, SEEK_END);
+    long len = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    char *data = (char*)malloc(len + 1);
+
+    if (NULL == data)
+    {
+        fprintf(stderr, "无法为解析配置文件申请足够的内存. need: %ld\n", len);
+        exit(NEED_MORE_MEMORY);
+    }
+
+    fread(data, 1, len, fp);
+    fclose(fp);
+
+    /** 解析 json 的配置文件 */
+    cJSON *root_json = cJSON_Parse(data);
+    if (NULL == root_json)
+    {
+        fprintf(stderr, "解析JSON失败, error:%s\n", cJSON_GetErrorPtr());
+        cJSON_Delete(root_json);
+        exit(JSON_PARSE_FAILURE);
+    }
+
+    /** 是否以守护进程工作 */
+    g_srv_conf.daemon = 0;
+    int daemon = cJSON_GetObjectItem(root_json, "daemon")->valueint;
+    if (daemon)
+    {
+        g_srv_conf.daemon = daemon;
+    }
+    //logprintf("g_srv_conf.daemon = %d", g_srv_conf.daemon);
+
+    g_srv_conf.port = SERVER_PORT;  /** 默认监听端口 */
+    int port = cJSON_GetObjectItem(root_json, "port")->valueint;
+    if (port > 0)
+    {
+        g_srv_conf.port = (u_int)port;
+    }
+    //logprintf("g_srv_conf.port = %d\n", g_srv_conf.port);
+
+    /** hard-code 去掉 json 字符串被解析后两边的 " */
+    char *zlog_conf = cJSON_Print(cJSON_GetObjectItem(root_json, "zlog_conf"));
+    zlog_conf[strlen(zlog_conf) - 1] = '\0';
+    snprintf(g_srv_conf.zlog_conf, CONF_BUF_LEN, "%s", zlog_conf + 1);
+    free(zlog_conf);
+    //logprintf("g_srv_conf.zlog_conf = %s", g_srv_conf.zlog_conf);
+
+    char *zlog_category = cJSON_Print(cJSON_GetObjectItem(root_json, "zlog_category"));
+    zlog_category[strlen(zlog_category) - 1] = '\0';
+    snprintf(g_srv_conf.zlog_category, CONF_BUF_LEN, "%s", zlog_category + 1);
+    free(zlog_category);
+    //logprintf("g_srv_conf.zlog_category = %s", g_srv_conf.zlog_category);
+
+    cJSON_Delete(root_json);
+
+    return;
+}
+
+void
 init_global_zlog()
 {
     /** 初始化日志 */
     int rc;
-    rc = zlog_init("conf/zlog.conf");
+    //logprintf("g_srv_conf.zlog_conf = %s", g_srv_conf.zlog_conf);
+    rc = zlog_init(g_srv_conf.zlog_conf);
     if (rc) {
-        fprintf(stderr, "init failed\n");
+        fprintf(stderr, "zlog init failed\n");
         exit(CAN_NOT_OPEN_ZLOG_CONF);
     }
 
-    g_zc = zlog_get_category("main_cat");
+    g_zc = zlog_get_category(g_srv_conf.zlog_category);
     if (!g_zc) {
-        fprintf(stderr, "get cat fail\n");
+        fprintf(stderr, "zlog get cat fail\n");
         zlog_fini();
         exit(CAN_NOT_GET_ZLOG_CATEGORY);
     }

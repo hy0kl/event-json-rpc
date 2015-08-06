@@ -78,8 +78,11 @@
 /** 全局状态码/错误码 */
 typedef enum _g_error_code_e
 {
-    CAN_NOT_OPEN_ZLOG_CONF = -1,
-    CAN_NOT_GET_ZLOG_CATEGORY = -2,
+    CAN_NOT_OPEN_SERVER_JSON    = -11,
+    NEED_MORE_MEMORY            = -12,
+    JSON_PARSE_FAILURE          = -13,
+    CAN_NOT_OPEN_ZLOG_CONF      = -1,
+    CAN_NOT_GET_ZLOG_CATEGORY   = -2,
 } g_error_code_e;
 
 /** 请求体 */
@@ -166,6 +169,9 @@ typedef struct _server_config_t
 } server_config_t;
 
 /** 函数前置申明 */
+void
+parse_server_config();
+
 void
 init_global_zlog();
 
