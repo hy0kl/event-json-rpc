@@ -60,17 +60,13 @@ parse_server_config()
     //logprintf("g_srv_conf.port = %d\n", g_srv_conf.port);
 
     /** hard-code 去掉 json 字符串被解析后两边的 " */
-    char *zlog_conf = cJSON_Print(cJSON_GetObjectItem(root_json, "zlog_conf"));
-    zlog_conf[strlen(zlog_conf) - 1] = '\0';
-    snprintf(g_srv_conf.zlog_conf, CONF_BUF_LEN, "%s", zlog_conf + 1);
-    free(zlog_conf);
-    //logprintf("g_srv_conf.zlog_conf = %s", g_srv_conf.zlog_conf);
+    cJSON *zlog_conf = cJSON_GetObjectItem(root_json, "zlog_conf");
+    snprintf(g_srv_conf.zlog_conf, CONF_BUF_LEN, "%s", zlog_conf->valuestring);
+    logprintf("g_srv_conf.zlog_conf = %s", g_srv_conf.zlog_conf);
 
-    char *zlog_category = cJSON_Print(cJSON_GetObjectItem(root_json, "zlog_category"));
-    zlog_category[strlen(zlog_category) - 1] = '\0';
-    snprintf(g_srv_conf.zlog_category, CONF_BUF_LEN, "%s", zlog_category + 1);
-    free(zlog_category);
-    //logprintf("g_srv_conf.zlog_category = %s", g_srv_conf.zlog_category);
+    cJSON *zlog_category = cJSON_GetObjectItem(root_json, "zlog_category");
+    snprintf(g_srv_conf.zlog_category, CONF_BUF_LEN, "%s", zlog_category->valuestring);
+    logprintf("g_srv_conf.zlog_category = %s", g_srv_conf.zlog_category);
 
     cJSON_Delete(root_json);
 
