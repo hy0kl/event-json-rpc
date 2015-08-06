@@ -75,6 +75,13 @@
  * of data we try to read per call to read(2). */
 #define BUFLEN 20480
 
+/** 全局状态码/错误码 */
+typedef enum _g_error_code_e
+{
+    CAN_NOT_OPEN_ZLOG_CONF = -1,
+    CAN_NOT_GET_ZLOG_CATEGORY = -2,
+} g_error_code_e;
+
 /** 请求体 */
 typedef struct _request_t
 {

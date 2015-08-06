@@ -16,14 +16,14 @@ init_global_zlog()
     rc = zlog_init("conf/zlog.conf");
     if (rc) {
         fprintf(stderr, "init failed\n");
-        exit(-1);
+        exit(CAN_NOT_OPEN_ZLOG_CONF);
     }
 
     g_zc = zlog_get_category("main_cat");
     if (!g_zc) {
         fprintf(stderr, "get cat fail\n");
         zlog_fini();
-        exit(-2);
+        exit(CAN_NOT_GET_ZLOG_CATEGORY);
     }
     zlog_info(g_zc, "程序初始化");
 
