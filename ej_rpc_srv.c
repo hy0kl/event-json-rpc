@@ -38,11 +38,20 @@ zlog_category_t *g_zc;
 int
 main(int argc, char *argv[])
 {
+    /** 屏蔽信号 */
+    //signal_setup();
+
     /** 解析主配置文件 */
     parse_server_config();
 
     /** 初始化日志 */
     init_global_zlog();
+
+    /** 以守护进程工作,不写日志了, #bug */
+    if (0 != g_srv_conf.daemon)
+    {
+        //daemonize(0, 1);
+    }
 
     /** 启动服务 */
     int listen_fd;

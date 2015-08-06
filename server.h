@@ -42,6 +42,8 @@
 /* Easy sensible linked lists. */
 #include "queue.h"
 
+#include "util.h"
+
 #define GETUTIME(t) ((t.tv_sec) * 1000000 + (t.tv_usec))
 #define GETSTIME(t) (t.tv_sec)
 #define GETMTIME(t) ((((t.tv_sec) * 1000000 + (t.tv_usec))) / 1000)
