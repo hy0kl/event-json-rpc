@@ -59,7 +59,6 @@ parse_server_config()
     }
     //logprintf("g_srv_conf.port = %d\n", g_srv_conf.port);
 
-    /** hard-code 去掉 json 字符串被解析后两边的 " */
     cJSON *zlog_conf = cJSON_GetObjectItem(root_json, "zlog_conf");
     snprintf(g_srv_conf.zlog_conf, CONF_BUF_LEN, "%s", zlog_conf->valuestring);
     //logprintf("g_srv_conf.zlog_conf = %s", g_srv_conf.zlog_conf);
