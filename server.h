@@ -157,6 +157,34 @@ typedef struct _server_config_t
     mysql_config_t mysql_slaves;
 } server_config_t;
 
+/** 函数前置申明 */
+int
+setnonblock(int fd);
+
+void
+on_handler(struct bufferq *bufferq);
+
+/**
+ * This function will be called by libevent when the client socket is
+ * ready for reading.
+ */
+void
+on_read(int fd, short ev, void *arg);
+
+/**
+ * This function will be called by libevent when the client socket is
+ * ready for writing.
+ */
+void
+on_write(int fd, short ev, void *arg);
+
+/**
+ * This function will be called by libevent when there is a connection
+ * ready to be accepted.
+ */
+void
+on_accept(int fd, short ev, void *arg);
+
 /**
  * global variables
  * */
