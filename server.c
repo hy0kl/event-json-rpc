@@ -62,11 +62,11 @@ parse_server_config()
     /** hard-code 去掉 json 字符串被解析后两边的 " */
     cJSON *zlog_conf = cJSON_GetObjectItem(root_json, "zlog_conf");
     snprintf(g_srv_conf.zlog_conf, CONF_BUF_LEN, "%s", zlog_conf->valuestring);
-    logprintf("g_srv_conf.zlog_conf = %s", g_srv_conf.zlog_conf);
+    //logprintf("g_srv_conf.zlog_conf = %s", g_srv_conf.zlog_conf);
 
     cJSON *zlog_category = cJSON_GetObjectItem(root_json, "zlog_category");
     snprintf(g_srv_conf.zlog_category, CONF_BUF_LEN, "%s", zlog_category->valuestring);
-    logprintf("g_srv_conf.zlog_category = %s", g_srv_conf.zlog_category);
+    //logprintf("g_srv_conf.zlog_category = %s", g_srv_conf.zlog_category);
 
     cJSON_Delete(root_json);
 
