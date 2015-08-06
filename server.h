@@ -189,6 +189,6 @@ on_accept(int fd, short ev, void *arg);
  * global variables
  * */
 extern server_config_t g_srv_conf;
-extern zlog_category_t *zc; /** 全局日志句柄 */
+extern zlog_category_t *g_zc; /** 全局日志句柄 */
 
 #endif

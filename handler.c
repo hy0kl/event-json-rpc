@@ -105,7 +105,7 @@ void
 rpc_handler(struct bufferq *bufferq)
 {
     int cmd = cJSON_GetObjectItem(bufferq->request.json, "cmd")->valueint;
-    zlog_debug(zc, "[cmd: %d]", cmd);
+    zlog_debug(g_zc, "[cmd: %d]", cmd);
 
     /** 初始化响应体基本结构 {"code": 0, "message": "OK"} */
     build_code_msg(bufferq->response.json, E_SUCCESS);

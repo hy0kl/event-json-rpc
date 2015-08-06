@@ -33,7 +33,7 @@
  * global variables
  * */
 server_config_t g_srv_conf;
-zlog_category_t *zc;
+zlog_category_t *g_zc;
 
 int
 main(int argc, char *argv[])
@@ -48,13 +48,13 @@ main(int argc, char *argv[])
         return -1;
     }
 
-    zc = zlog_get_category("main_cat");
-    if (!zc) {
+    g_zc = zlog_get_category("main_cat");
+    if (!g_zc) {
         fprintf(stderr, "get cat fail\n");
         zlog_fini();
         return -2;
     }
-    zlog_info(zc, "程序初始化");
+    zlog_info(g_zc, "程序初始化");
 
     /** 启动服务 */
     int listen_fd;
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
     struct event ev_accept;
 
     /* Initialize libevent. */
-    zlog_debug(zc, "初始化 libevent");
+    zlog_debug(g_zc, "初始化 libevent");
     event_init();
 
     /* Create our listening socket. This is largely boiler plate
@@ -77,7 +77,7 @@ main(int argc, char *argv[])
         sizeof(reuseaddr_on)) == -1) {
         err(1, "setsockopt failed");
     }
-    zlog_debug(zc, "创建 socket 成功");
+    zlog_debug(g_zc, "创建 socket 成功");
 
     memset(&listen_addr, 0, sizeof(listen_addr));
     listen_addr.sin_family = AF_INET;
@@ -89,7 +89,7 @@ main(int argc, char *argv[])
         err(1, "bind failed");
     if (listen(listen_fd, 5) < 0)
         err(1, "listen failed");
-    zlog_debug(zc, "bind 端口成功");
+    zlog_debug(g_zc, "bind 端口成功");
 
     /* Set the socket to non-blocking, this is essential in event
      * based programming with libevent. */
@@ -100,7 +100,7 @@ main(int argc, char *argv[])
      * be notified when a client connects. */
     event_set(&ev_accept, listen_fd, EV_READ|EV_PERSIST, on_accept, NULL);
     event_add(&ev_accept, NULL);
-    zlog_debug(zc, "libevent 初始化完成");
+    zlog_debug(g_zc, "libevent 初始化完成");
 
     /* Start the libevent event loop. */
     event_dispatch();
