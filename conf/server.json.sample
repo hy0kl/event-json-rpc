@@ -3,6 +3,7 @@
     "port": 5555,
 
     "zlog_conf": "conf/zlog.conf",
+    "zlog_category": "main_cat",
 
     "mysql": {
         "master": {

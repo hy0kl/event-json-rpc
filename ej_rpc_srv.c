@@ -41,20 +41,7 @@ main(int argc, char *argv[])
     /** 解析主配置文件 */
 
     /** 初始化日志 */
-    int rc;
-    rc = zlog_init("conf/zlog.conf");
-    if (rc) {
-        fprintf(stderr, "init failed\n");
-        return -1;
-    }
-
-    g_zc = zlog_get_category("main_cat");
-    if (!g_zc) {
-        fprintf(stderr, "get cat fail\n");
-        zlog_fini();
-        return -2;
-    }
-    zlog_info(g_zc, "程序初始化");
+    init_global_zlog();
 
     /** 启动服务 */
     int listen_fd;

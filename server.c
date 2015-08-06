@@ -8,6 +8,28 @@
 /** handler */
 #include "handler.h"
 
+void
+init_global_zlog()
+{
+    /** 初始化日志 */
+    int rc;
+    rc = zlog_init("conf/zlog.conf");
+    if (rc) {
+        fprintf(stderr, "init failed\n");
+        exit(-1);
+    }
+
+    g_zc = zlog_get_category("main_cat");
+    if (!g_zc) {
+        fprintf(stderr, "get cat fail\n");
+        zlog_fini();
+        exit(-2);
+    }
+    zlog_info(g_zc, "程序初始化");
+
+    return;
+}
+
 /**
  * Set a socket to non-blocking mode.
  */

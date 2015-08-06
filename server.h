@@ -151,13 +151,17 @@ typedef struct _server_config_t
     u_int daemon;   /** 是否以守护进程方式工作 */
     u_int port;     /** 监听的端口 */
 
-    char  zlog_conf[PATH_BUF_LEN];
+    char zlog_conf[PATH_BUF_LEN];
+    char zlog_category[CONF_BUF_LEN];
 
     mysql_config_t mysql_master;
     mysql_config_t mysql_slaves;
 } server_config_t;
 
 /** 函数前置申明 */
+void
+init_global_zlog();
+
 int
 setnonblock(int fd);
 
