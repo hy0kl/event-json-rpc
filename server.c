@@ -38,7 +38,10 @@ parse_server_config()
     if (NULL == root_json)
     {
         fprintf(stderr, "解析JSON失败, error:%s\n", cJSON_GetErrorPtr());
+
         cJSON_Delete(root_json);
+        free(data);
+
         exit(JSON_PARSE_FAILURE);
     }
 
@@ -68,6 +71,7 @@ parse_server_config()
     //logprintf("g_srv_conf.zlog_category = %s", g_srv_conf.zlog_category);
 
     cJSON_Delete(root_json);
+    free(data);
 
     return;
 }
