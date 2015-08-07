@@ -63,11 +63,25 @@ parse_server_config()
     //logprintf("g_srv_conf.port = %d\n", g_srv_conf.port);
 
     cJSON *zlog_conf = cJSON_GetObjectItem(root_json, "zlog_conf");
-    snprintf(g_srv_conf.zlog_conf, CONF_BUF_LEN, "%s", zlog_conf->valuestring);
+    if (NULL != zlog_conf)
+    {
+        snprintf(g_srv_conf.zlog_conf, CONF_BUF_LEN, "%s", zlog_conf->valuestring);
+    }
+    else
+    {
+        snprintf(g_srv_conf.zlog_conf, CONF_BUF_LEN, "./conf/zlog.conf");
+    }
     //logprintf("g_srv_conf.zlog_conf = %s", g_srv_conf.zlog_conf);
 
     cJSON *zlog_category = cJSON_GetObjectItem(root_json, "zlog_category");
-    snprintf(g_srv_conf.zlog_category, CONF_BUF_LEN, "%s", zlog_category->valuestring);
+    if (NULL != zlog_category)
+    {
+        snprintf(g_srv_conf.zlog_category, CONF_BUF_LEN, "%s", zlog_category->valuestring);
+    }
+    else
+    {
+        snprintf(g_srv_conf.zlog_category, CONF_BUF_LEN, "default_cat");
+    }
     //logprintf("g_srv_conf.zlog_category = %s", g_srv_conf.zlog_category);
 
     cJSON_Delete(root_json);
