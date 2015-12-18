@@ -22,7 +22,7 @@ https://github.com/HardySimpson/zlog
 
 ## 数据库连接池
 http://re2c.org/
-https://github.com/mverbert/libzdb
+https://github.com/mverbert/libzdb http://www.tildeslash.com/libzdb
 
 # 命令号和错误码
 
